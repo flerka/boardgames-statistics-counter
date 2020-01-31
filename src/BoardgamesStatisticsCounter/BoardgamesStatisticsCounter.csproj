@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <CrossGenDuringPublish>false</CrossGenDuringPublish>
+    <PublishTrimmed>true</PublishTrimmed>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsNotAsErrors>NU1701, SA1615, SA1633, SA1600, CA1801, CA2000, CS1573, CA1031</WarningsNotAsErrors>
+    <LangVersion>8</LangVersion>
+    <Nullable>enable</Nullable>
+    <NoWarn>SA1633, SA1200, SA1309, SA1101, CA1303, CS1591, SA1028, CS8602, CA1062, CA2007, CA1000, CA2225, SA1623, SA1600, SA1003, CA1054, CA1056, CA1063, SA1206</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DocumentationFile>bin\$(Configuration)\netcoreapp3.0\linux-x64\ApiDocumentation.xml</DocumentationFile>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="Infrastructure\Attributes\**" />
+    <Compile Remove="TransactionsExport\**" />
+    <Compile Remove="TransactionsParser\**" />
+    <Compile Remove="TransactionsUpload\**" />
+    <Compile Remove="TransactuinsProcessor\**" />
+    <Content Remove="Infrastructure\Attributes\**" />
+    <Content Remove="TransactionsExport\**" />
+    <Content Remove="TransactionsParser\**" />
+    <Content Remove="TransactionsUpload\**" />
+    <Content Remove="TransactuinsProcessor\**" />
+    <EmbeddedResource Remove="Infrastructure\Attributes\**" />
+    <EmbeddedResource Remove="TransactionsExport\**" />
+    <EmbeddedResource Remove="TransactionsParser\**" />
+    <EmbeddedResource Remove="TransactionsUpload\**" />
+    <EmbeddedResource Remove="TransactuinsProcessor\**" />
+    <None Remove="Infrastructure\Attributes\**" />
+    <None Remove="TransactionsExport\**" />
+    <None Remove="TransactionsParser\**" />
+    <None Remove="TransactionsUpload\**" />
+    <None Remove="TransactuinsProcessor\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentMigrator" Version="3.2.1" />
+    <PackageReference Include="FluentMigrator.Runner" Version="3.2.1" />
+    <PackageReference Include="FluentMigrator.Runner.Postgres" Version="3.2.1" />
+    <PackageReference Include="MediatR" Version="8.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.7">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Serilog" Version="2.9.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="3.2.0" />
+    <PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Telegram.Bot" Version="15.2.1" />
+    <PackageReference Include="TimeZoneConverter" Version="3.2.0" />
+  </ItemGroup>
+</Project>
