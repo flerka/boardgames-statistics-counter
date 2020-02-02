@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Telegram.Bot;
@@ -15,13 +16,16 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
 
         private readonly ITelegramBotClient _telegramBotClient;
         private readonly ILogger _logger;
+        private readonly IMediator _mediator;
 
         public GameUpdatesImporterHostedService(
             ITelegramBotClient telegramBotClient,
-            ILogger logger)
+            ILogger logger,
+            IMediator mediator)
         {
             _telegramBotClient = telegramBotClient;
             _logger = logger;
+            _mediator = mediator;
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
@@ -33,7 +37,8 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var updates = await _telegramBotClient.GetUpdatesAsync(offset, 0, _defaultLongPollingTimeout.Seconds, null, cancellationToken);
+                    var updates = await _telegramBotClient.GetUpdatesAsync(offset, 0,
+                        _defaultLongPollingTimeout.Seconds, null, cancellationToken);
                     if (updates == null || updates.Length == 0)
                     {
                         await Task.Delay(_defaultDelayBetweenRequests.Milliseconds, cancellationToken);
@@ -44,7 +49,13 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
                     {
                         if (update.Message.Type == MessageType.Text)
                         {
-                            // process text
+                            var textMessage = new TextMessage
+                            {
+                                Message = update.Message.Text,
+                                ChatId = update.Message.Chat.Id.ToString(),
+                                MessageDateTime = update.Message.Date
+                            };
+                            await _mediator.Publish(textMessage);
                         }
 
                         offset = update.Id + 1;

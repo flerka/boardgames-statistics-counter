@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
-
+using System.Reflection;
 using BoardgamesStatisticsCounter.Infrastructure;
 using BoardgamesStatisticsCounter.Infrastructure.Extensions;
 using FluentMigrator.Runner;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,6 +34,7 @@ namespace BoardgamesStatisticsCounter
             services.AddSerilogLogging();
             services.AddControllers();
             services.AddCors();
+            services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly);
             services.AddFluentMigrator();
 
             services.ApplyMigrations();
