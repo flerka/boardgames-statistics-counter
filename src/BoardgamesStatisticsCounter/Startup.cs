@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using BoardgamesStatisticsCounter.Infrastructure;
 using BoardgamesStatisticsCounter.Infrastructure.Extensions;
+using FluentMigrator.Runner;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,6 +34,8 @@ namespace BoardgamesStatisticsCounter
             services.AddControllers();
             services.AddCors();
             services.AddFluentMigrator();
+
+            services.ApplyMigrations();
         } 
 
         /// <summary>

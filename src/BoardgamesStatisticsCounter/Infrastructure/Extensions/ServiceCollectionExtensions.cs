@@ -1,16 +1,17 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using System.Collections.Generic;
+using BoardgamesStatisticsCounter.Data.Migrations;
+using FluentMigrator.Runner;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
-using System;
-using System.Collections.Generic;
 using Telegram.Bot;
-using System;
-using System.Linq;
-
-using FluentMigrator.Runner;
-using FluentMigrator.Runner.Initialization;
-using BoardgamesStatisticsCounter.Data.Migrations;
 
 namespace BoardgamesStatisticsCounter.Infrastructure.Extensions
 {
@@ -44,13 +45,29 @@ namespace BoardgamesStatisticsCounter.Infrastructure.Extensions
 
         internal static IServiceCollection AddFluentMigrator(this IServiceCollection services)
         {
-            services.AddFluentMigratorCore()
-                .ConfigureRunner(rb => 
+            var connectionString = Environment.GetEnvironmentVariable("BOARDGAMES_DB_CONNECTION");
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new KeyNotFoundException("BOARDGAMES_DB_CONNECTION not found");
+            }
+
+            return services.AddFluentMigratorCore()
+                .ConfigureRunner(rb =>
                     rb.AddPostgres()
-                    .WithGlobalConnectionString("Data Source=test.db")
-                    .ScanIn(typeof(AddBaseDatabaseStructure).Assembly).For.Migrations())
-                .AddLogging(lb => lb.AddFluentMigratorConsole())
-                .BuildServiceProvider(false);
+                        .WithGlobalConnectionString(connectionString)
+                        .ScanIn(typeof(AddBaseDatabaseStructure).Assembly).For.Migrations())
+                .AddLogging(lb => lb.AddFluentMigratorConsole());
+        }
+
+        internal static IServiceCollection ApplyMigrations(this IServiceCollection services)
+        {
+            var serviceProvider = services.BuildServiceProvider(false);
+            using var scope = serviceProvider.CreateScope();
+            
+            var runner = serviceProvider.GetRequiredService<IMigrationRunner>();
+            runner.MigrateUp();
+
+            return services;
         }
     }
 }

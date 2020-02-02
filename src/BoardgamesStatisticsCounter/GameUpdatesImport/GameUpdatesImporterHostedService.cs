@@ -10,8 +10,8 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
 {
     public class GameUpdatesImporterHostedService : BackgroundService
     {
-        private TimeSpan DefaultDelayMs = 50 * 60000;
-        private TimeSpan DefaultLongPollingTimeoutSeconds = 360;
+        private readonly TimeSpan _defaultDelayBetweenRequests = TimeSpan.FromMinutes(5);
+        private readonly TimeSpan _defaultLongPollingTimeout = TimeSpan.FromMinutes(1);
 
         private readonly ITelegramBotClient _telegramBotClient;
         private readonly ILogger _logger;
@@ -33,10 +33,10 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var updates = await _telegramBotClient.GetUpdatesAsync(offset, 0, DefaultLongPollingTimeoutSeconds, null, cancellationToken);
+                    var updates = await _telegramBotClient.GetUpdatesAsync(offset, 0, _defaultLongPollingTimeout.Seconds, null, cancellationToken);
                     if (updates == null || updates.Length == 0)
                     {
-                        await Task.Delay(DefaultDelayMs, cancellationToken);
+                        await Task.Delay(_defaultDelayBetweenRequests.Milliseconds, cancellationToken);
                         continue;
                     }
 
@@ -53,7 +53,7 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
                 catch (Exception e)
                 {
                     _logger.Error(e, "An unhandled exception occured in GameUpdatesImporterHostedService");
-                    await Task.Delay(DefaultDelayMs, cancellationToken);
+                    await Task.Delay(_defaultDelayBetweenRequests, cancellationToken);
                 }
             }
         }
