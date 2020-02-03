@@ -1,6 +1,6 @@
 namespace BoardgamesStatisticsCounter.Infrastructure
 {
-    public class DbClientConfig
+    public class AppSettings
     {
         public string ConnectionString { get; set; } = default!;
     }

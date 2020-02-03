@@ -37,7 +37,8 @@ namespace BoardgamesStatisticsCounter
             services.AddControllers();
             services.AddCors();
             services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly);
-            services.Configure<DbClientConfig>(x =>
+
+            services.Configure<AppSettings>(x =>
             {
                 var connectionString = Environment.GetEnvironmentVariable("BOARDGAMES_DB_CONNECTION");
                 if (string.IsNullOrEmpty(connectionString))

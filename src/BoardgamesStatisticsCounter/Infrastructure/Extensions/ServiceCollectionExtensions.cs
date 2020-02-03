@@ -48,7 +48,7 @@ namespace BoardgamesStatisticsCounter.Infrastructure.Extensions
         {
             var serviceProvider = services.BuildServiceProvider(false);
             using var scope = serviceProvider.CreateScope();
-            var clientConfig = serviceProvider.GetRequiredService<IOptions<DbClientConfig>>();
+            var clientConfig = serviceProvider.GetRequiredService<IOptions<AppSettings>>();
             
             return services.AddFluentMigratorCore()
                 .ConfigureRunner(rb =>
