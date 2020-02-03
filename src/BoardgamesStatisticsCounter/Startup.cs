@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Xml.Xsl;
+using BoardgamesStatisticsCounter.GameUpdatesImport;
 using BoardgamesStatisticsCounter.Infrastructure;
 using BoardgamesStatisticsCounter.Infrastructure.Extensions;
 using FluentMigrator.Runner;
@@ -48,7 +49,8 @@ namespace BoardgamesStatisticsCounter
 
                 x.ConnectionString = connectionString;
             });
-            
+            services.AddTelegramBotClient();
+            services.AddHostedService<GameUpdatesImporterHostedService>();
             services.AddFluentMigrator();
             services.ApplyMigrations();
         } 

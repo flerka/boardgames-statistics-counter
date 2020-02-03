@@ -11,15 +11,15 @@ namespace BoardgamesStatisticsCounter.Data.Migrations
         {
             Create.Table("user_chats")
                 .WithColumn("id").AsInt64().PrimaryKey().Identity()
-                .WithColumn("chat_it").AsString().Indexed().Unique();
+                .WithColumn("chat_id").AsString().Indexed();
 
             Create.Table("games")
                 .WithColumn("id").AsInt64().PrimaryKey().Identity()
-                .WithColumn("name").AsString().Indexed().Unique();
+                .WithColumn("name").AsString().Indexed();
 
             Create.Table("user_games")
                 .WithColumn("id").AsInt64().PrimaryKey().Identity()
-                .WithColumn("game_id").AsString()
+                .WithColumn("game_id").AsInt64()
                 .WithColumn("user_id").AsInt64()
                 .WithColumn("game_datetime").AsDateTime()
                 .WithColumn("players").AsAnsiString().Nullable()

@@ -12,7 +12,7 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
 {
     public class GameUpdatesImporterHostedService : BackgroundService
     {
-        private readonly TimeSpan _defaultDelayBetweenRequests = TimeSpan.FromMinutes(5);
+        private readonly TimeSpan _defaultDelayBetweenRequests = TimeSpan.FromMinutes(0);
         private readonly TimeSpan _defaultLongPollingTimeout = TimeSpan.FromMinutes(1);
 
         private readonly ITelegramBotClient _telegramBotClient;
@@ -34,43 +34,35 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
             var offset = 0;
             while (!cancellationToken.IsCancellationRequested)
             {
-                try
+                cancellationToken.ThrowIfCancellationRequested();
+
+                var updates = await _telegramBotClient.GetUpdatesAsync(
+                    offset,
+                    0,
+                    _defaultLongPollingTimeout.Seconds,
+                    null,
+                    cancellationToken);
+
+                if (updates == null || updates.Length == 0)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    var updates = await _telegramBotClient.GetUpdatesAsync(
-                        offset,
-                        0,
-                        _defaultLongPollingTimeout.Seconds,
-                        null,
-                        cancellationToken);
-                    
-                    if (updates == null || updates.Length == 0)
-                    {
-                        await Task.Delay(_defaultDelayBetweenRequests.Milliseconds, cancellationToken);
-                        continue;
-                    }
-
-                    foreach (var update in updates)
-                    {
-                        if (update.Message.Type == MessageType.Text)
-                        {
-                            var textMessage = new TextMessage
-                            {
-                                Message = update.Message.Text,
-                                ChatId = update.Message.Chat.Id.ToString(CultureInfo.InvariantCulture),
-                                MessageDateTime = update.Message.Date,
-                            };
-                            await _mediator.Publish(textMessage);
-                        }
-
-                        offset = update.Id + 1;
-                    }
+                    await Task.Delay(_defaultDelayBetweenRequests.Milliseconds, cancellationToken);
+                    continue;
                 }
-                catch (Exception e)
+
+                foreach (var update in updates)
                 {
-                    _logger.Error(e, "An unhandled exception occured in GameUpdatesImporterHostedService");
-                    await Task.Delay(_defaultDelayBetweenRequests, cancellationToken);
+                    if (update.Message.Type == MessageType.Text)
+                    {
+                        var textMessage = new TextMessage
+                        {
+                            Message = update.Message.Text,
+                            ChatId = update.Message.Chat.Id.ToString(CultureInfo.InvariantCulture),
+                            MessageDateTime = update.Message.Date,
+                        };
+                        await _mediator.Send(textMessage);
+                    }
+
+                    offset = update.Id + 1;
                 }
             }
         }
