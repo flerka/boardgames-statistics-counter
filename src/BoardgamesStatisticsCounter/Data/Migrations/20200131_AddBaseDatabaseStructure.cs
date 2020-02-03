@@ -1,4 +1,6 @@
-﻿using FluentMigrator;
+﻿using System;
+using System.Net.NetworkInformation;
+using FluentMigrator;
 
 namespace BoardgamesStatisticsCounter.Data.Migrations
 {
@@ -13,15 +15,15 @@ namespace BoardgamesStatisticsCounter.Data.Migrations
 
             Create.Table("games")
                 .WithColumn("id").AsInt64().PrimaryKey().Identity()
-                .WithColumn("game_name").AsString().Indexed().Unique();
+                .WithColumn("name").AsString().Indexed().Unique();
 
             Create.Table("user_games")
                 .WithColumn("id").AsInt64().PrimaryKey().Identity()
-                .WithColumn("game_id").AsString().ForeignKey(x => x.)
+                .WithColumn("game_id").AsString()
                 .WithColumn("user_id").AsInt64()
-                .WithColumn("game_datetime_utc").AsDateTime()
-                .WithColumn("game_players").AsAnsiString().Nullable()
-                .WithColumn("game_score").AsString().Nullable()
+                .WithColumn("game_datetime").AsDateTime()
+                .WithColumn("players").AsAnsiString().Nullable()
+                .WithColumn("score").AsString().Nullable()
                 .WithColumn("winner").AsString().Nullable();
             
             Create.ForeignKey()

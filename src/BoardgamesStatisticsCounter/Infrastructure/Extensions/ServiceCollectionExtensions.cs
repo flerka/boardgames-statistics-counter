@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
 using Serilog.Formatting.Compact;
@@ -45,17 +46,15 @@ namespace BoardgamesStatisticsCounter.Infrastructure.Extensions
 
         internal static IServiceCollection AddFluentMigrator(this IServiceCollection services)
         {
-            var connectionString = Environment.GetEnvironmentVariable("BOARDGAMES_DB_CONNECTION");
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                throw new KeyNotFoundException("BOARDGAMES_DB_CONNECTION not found");
-            }
-
+            var serviceProvider = services.BuildServiceProvider(false);
+            using var scope = serviceProvider.CreateScope();
+            var clientConfig = serviceProvider.GetRequiredService<IOptions<DbClientConfig>>();
+            
             return services.AddFluentMigratorCore()
                 .ConfigureRunner(rb =>
                     rb.AddPostgres()
-                        .WithGlobalConnectionString(connectionString)
-                        .ScanIn(typeof(AddBaseDatabaseStructure).Assembly).For.Migrations())
+                        .WithGlobalConnectionString(clientConfig.Value.ConnectionString)
+                        .ScanIn(typeof(Startup).Assembly).For.Migrations())
                 .AddLogging(lb => lb.AddFluentMigratorConsole());
         }
 

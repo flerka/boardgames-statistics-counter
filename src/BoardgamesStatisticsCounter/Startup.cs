@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Xml.Xsl;
 using BoardgamesStatisticsCounter.Infrastructure;
 using BoardgamesStatisticsCounter.Infrastructure.Extensions;
 using FluentMigrator.Runner;
@@ -35,8 +37,18 @@ namespace BoardgamesStatisticsCounter
             services.AddControllers();
             services.AddCors();
             services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly);
-            services.AddFluentMigrator();
+            services.Configure<DbClientConfig>(x =>
+            {
+                var connectionString = Environment.GetEnvironmentVariable("BOARDGAMES_DB_CONNECTION");
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    throw new KeyNotFoundException("BOARDGAMES_DB_CONNECTION not found");
+                }
 
+                x.ConnectionString = connectionString;
+            });
+            
+            services.AddFluentMigrator();
             services.ApplyMigrations();
         } 
 

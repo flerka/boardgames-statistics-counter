@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -37,8 +38,13 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var updates = await _telegramBotClient.GetUpdatesAsync(offset, 0,
-                        _defaultLongPollingTimeout.Seconds, null, cancellationToken);
+                    var updates = await _telegramBotClient.GetUpdatesAsync(
+                        offset,
+                        0,
+                        _defaultLongPollingTimeout.Seconds,
+                        null,
+                        cancellationToken);
+                    
                     if (updates == null || updates.Length == 0)
                     {
                         await Task.Delay(_defaultDelayBetweenRequests.Milliseconds, cancellationToken);
@@ -52,8 +58,8 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
                             var textMessage = new TextMessage
                             {
                                 Message = update.Message.Text,
-                                ChatId = update.Message.Chat.Id.ToString(),
-                                MessageDateTime = update.Message.Date
+                                ChatId = update.Message.Chat.Id.ToString(CultureInfo.InvariantCulture),
+                                MessageDateTime = update.Message.Date,
                             };
                             await _mediator.Publish(textMessage);
                         }

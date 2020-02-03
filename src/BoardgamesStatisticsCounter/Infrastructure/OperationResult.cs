@@ -1,7 +1,6 @@
 namespace BoardgamesStatisticsCounter.Infrastructure
 {
-    public class OperationResult
+    public class OperationResult 
     {
-        
     }
 }
