@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
@@ -32,6 +33,10 @@ namespace BoardgamesStatisticsCounter
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseSerilog().UseStartup<Startup>();
+                })
+                .ConfigureAppConfiguration((builderContext, config) =>
+                {
+                    config.AddEnvironmentVariables("BG_");
                 });
     }
 }

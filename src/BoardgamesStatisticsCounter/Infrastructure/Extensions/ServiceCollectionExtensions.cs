@@ -35,13 +35,8 @@ namespace BoardgamesStatisticsCounter.Infrastructure.Extensions
 
         internal static IServiceCollection AddTelegramBotClient(this IServiceCollection services)
         {
-            var accessToken = Environment.GetEnvironmentVariable("ACCESS_TOKEN");
-            if (string.IsNullOrEmpty(accessToken))
-            {
-                throw new KeyNotFoundException("ACCESS_TOKEN not found");
-            }
-
-            return services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(accessToken));
+            return services.AddSingleton<ITelegramBotClient>(
+                ctx => new TelegramBotClient(ctx.GetService<IOptions<AppSettings>>().Value.AccessToken));
         }
 
         internal static IServiceCollection AddFluentMigrator(this IServiceCollection services)

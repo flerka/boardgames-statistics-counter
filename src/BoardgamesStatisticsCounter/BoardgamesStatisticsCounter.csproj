@@ -9,7 +9,7 @@
     <WarningsNotAsErrors>NU1701, SA1615, SA1633, SA1600, CA1801, CA2000, CS1573, CA1031</WarningsNotAsErrors>
     <LangVersion>8</LangVersion>
     <Nullable>enable</Nullable>
-    <NoWarn>SA1633, SA1200, SA1309, SA1101, CA1303, CS1591, SA1028, CS8602, CA1062, CA2007, CA1000, CA2225, SA1623, SA1600, SA1003, CA1054, CA1056, CA1063, SA1206</NoWarn>
+    <NoWarn>SA1633, SA1200, CA2227, SA1309, SA1101, CA1303, CS1591, SA1028, CS8602, CA1062, CA2007, CA1000, CA2225, SA1623, SA1600, SA1003, CA1054, CA1056, CA1063, SA1206</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
     <DocumentationFile>bin\$(Configuration)\netcoreapp3.0\linux-x64\ApiDocumentation.xml</DocumentationFile>

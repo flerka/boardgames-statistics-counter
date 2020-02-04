@@ -7,6 +7,7 @@ using BoardgamesStatisticsCounter.Infrastructure;
 using Dapper;
 using MediatR;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using Sprache;
 
 namespace BoardgamesStatisticsCounter.GameUpdatesImport
@@ -22,18 +23,24 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
         
         public async Task<OperationResult> Handle(TextMessage request, CancellationToken cancellationToken)
         {
-            var gameName = TextMessageGrammar.MessageParser.TryParse(request.Message).Value.SelectMany(s => s).First();
-            using var connection = new SqlConnection(_clientConfig.ConnectionString);
+            var parsedMessage = TextMessageGrammar.MessageParser.TryParse(request.Message);
+            if (!parsedMessage.WasSuccessful)
+            {
+                return new OperationResult();
+            }
+
+            var gameName = parsedMessage.Value.SelectMany(s => s).First();
+            using var connection = new NpgsqlConnection(_clientConfig.ConnectionString);
 
             var insertUserAndGetIdSql = @"INSERT INTO user_chats (chat_id)
-                        VALUES(@ChatId),
+                        VALUES(@ChatId)
                         ON CONFLICT (chat_id) DO UPDATE 
                         SET chat_id=EXCLUDED.chat_id
                         RETURNING id";
             var userId = await connection.QueryFirstAsync<int>(insertUserAndGetIdSql, new { request.ChatId });
 
             var insertGameAndGetIdSql = @"INSERT INTO games (name)
-                        VALUES(@Name),
+                        VALUES(@Name)
                         ON CONFLICT (name) DO UPDATE 
                         SET name=EXCLUDED.name
                         RETURNING id";

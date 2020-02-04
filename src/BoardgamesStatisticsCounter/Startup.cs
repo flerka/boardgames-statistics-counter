@@ -28,34 +28,6 @@ namespace BoardgamesStatisticsCounter
         }
 
         /// <summary>
-        /// This method gets called by the runtime. Use this method to add services to the container.
-        /// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940.
-        /// </summary>
-        /// <param name="services">Service collection.</param>
-        public static void ConfigureServices(IServiceCollection services)
-        {
-            services.AddSerilogLogging();
-            services.AddControllers();
-            services.AddCors();
-            services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly);
-
-            services.Configure<AppSettings>(x =>
-            {
-                var connectionString = Environment.GetEnvironmentVariable("BOARDGAMES_DB_CONNECTION");
-                if (string.IsNullOrEmpty(connectionString))
-                {
-                    throw new KeyNotFoundException("BOARDGAMES_DB_CONNECTION not found");
-                }
-
-                x.ConnectionString = connectionString;
-            });
-            services.AddTelegramBotClient();
-            services.AddHostedService<GameUpdatesImporterHostedService>();
-            services.AddFluentMigrator();
-            services.ApplyMigrations();
-        } 
-
-        /// <summary>
         /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         /// </summary>
         /// <param name="app">Middleware builder.</param>
@@ -66,6 +38,26 @@ namespace BoardgamesStatisticsCounter
             app.UseCors();
             app.UseRouting();
             app.UseEndpoints(endpoints => endpoints.MapControllers());
+        }
+
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to add services to the container.
+        /// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940.
+        /// </summary>
+        /// <param name="services">Service collection.</param>
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddSerilogLogging();
+            services.Configure<AppSettings>(_configuration.GetSection("AS"));
+
+            services.AddControllers();
+            services.AddCors();
+            services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly);
+            services.AddFluentMigrator();
+            services.AddTelegramBotClient();
+            services.AddHostedService<BotUpdatesImporter>();
+
+            services.ApplyMigrations();
         }
     }
 }
