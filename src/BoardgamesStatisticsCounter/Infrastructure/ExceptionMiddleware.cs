@@ -2,6 +2,7 @@
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
+using BoardgamesStatisticsCounter.Infrastructure.Results;
 using Microsoft.AspNetCore.Http;
 using Serilog;
 
@@ -38,7 +39,7 @@ namespace BoardgamesStatisticsCounter.Infrastructure
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-            var errorDetails = new ErrorDetails((int)HttpStatusCode.InternalServerError, DefaultErrorMessage);
+            var errorDetails = new ErrorResult("internal_error", DefaultErrorMessage);
             var body = context.Response.Body;
             await JsonSerializer.SerializeAsync(body, errorDetails, errorDetails.GetType());
             await body.FlushAsync();

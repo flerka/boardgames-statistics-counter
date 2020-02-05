@@ -1,10 +1,10 @@
 using System;
-using BoardgamesStatisticsCounter.Infrastructure;
+using BoardgamesStatisticsCounter.Infrastructure.Results;
 using MediatR;
 
 namespace BoardgamesStatisticsCounter.GameUpdatesImport
 {
-    public class TextMessage : IRequest<OperationResult>
+    public class TextMessage : IRequest<OperationResult<int>>
     {
         public string Message { get; set; } = default!;
         

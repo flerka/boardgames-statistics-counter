@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using BoardgamesStatisticsCounter.Data.Migrations;
-using FluentMigrator.Runner;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.Extensions.Configuration;
+﻿using FluentMigrator.Runner;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;

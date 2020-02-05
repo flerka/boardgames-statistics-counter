@@ -17,24 +17,27 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
 {
     public class BotUpdatesImporter : BackgroundService
     {
-        private readonly TimeSpan _defaultDelayBetweenRequests = TimeSpan.FromMinutes(0);
+        private readonly TimeSpan _defaultDelayBetweenRequests = TimeSpan.FromMinutes(10);
         private readonly TimeSpan _defaultLongPollingTimeout = TimeSpan.FromMinutes(1);
 
+        private readonly IHostApplicationLifetime _hostApplicationLifetime; 
         private readonly ITelegramBotClient _telegramBotClient;
-        private readonly List<string> _allowedChatIds;
+        private readonly List<string>? _allowedChatIds;
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
 
         public BotUpdatesImporter(
             ITelegramBotClient telegramBotClient,
+            IHostApplicationLifetime hostApplicationLifetime,
             ILogger logger,
             IMediator mediator,
             IOptions<AppSettings> clientConfig)
         {
             _allowedChatIds = string.IsNullOrEmpty(clientConfig.Value.AllowedChatIds)
-                ? new List<string>()
+                ? null
                 : clientConfig.Value.AllowedChatIds.Split(',').ToList();
 
+            _hostApplicationLifetime = hostApplicationLifetime;
             _telegramBotClient = telegramBotClient;
             _logger = logger;
             _mediator = mediator;
@@ -51,7 +54,7 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
 
                     var updates = await _telegramBotClient.GetUpdatesAsync(
                         offset,
-                        0,
+                        100,
                         _defaultLongPollingTimeout.Seconds,
                         null,
                         cancellationToken);
@@ -70,13 +73,14 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
             }
             catch (Exception e)
             {
-                _logger.Error(e, "BotUpdatesImporter.ExecuteAsync failed");
+                _logger.Error(e, "BotUpdatesImporter.ExecuteAsync Some unhandled error occurred, stopping application.");
+                _hostApplicationLifetime.StopApplication();
             }
         }
 
         private async Task<(int, int)> ProcessUpdate(Update[] updates)
         {
-            var unsuccessfulProcessed = 0;
+            var total = updates.Length;
             var successfulProcessed = 0;
 
             foreach (var update in updates)
@@ -84,27 +88,29 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
                 if (!_allowedChatIds.Contains(update.Message.Chat.Id.ToString(CultureInfo.InvariantCulture)))
                 {
                     _logger.Warning($"BotUpdatesImporter.ProcessUpdate message from unrecognized user - {update.Message.Chat.Id}");
-                    unsuccessfulProcessed++;
                     continue;
                 }
 
                 if (update.Message.Type != MessageType.Text)
                 {
                     _logger.Warning($"BotUpdatesImporter.ProcessUpdate unrecognized message type - {update.Message.Chat.Id}");
-                    unsuccessfulProcessed++;
                     continue;
                 }
 
-                await _mediator.Send(new TextMessage
+                var result = await _mediator.Send(new TextMessage
                 {
                     Message = update.Message.Text,
                     ChatId = update.Message.Chat.Id.ToString(CultureInfo.InvariantCulture),
                     MessageDateTime = update.Message.Date,
                 });
-                successfulProcessed++;
+
+                if (result.IsSuccesfull)
+                {
+                    successfulProcessed++;
+                }
             }
 
-            return (unsuccessfulProcessed, successfulProcessed);
+            return (total - successfulProcessed, successfulProcessed);
         }
     }
 }

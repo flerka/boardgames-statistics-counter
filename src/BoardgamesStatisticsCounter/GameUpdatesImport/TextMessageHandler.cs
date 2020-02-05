@@ -1,32 +1,36 @@
-using System;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using BoardgamesStatisticsCounter.Infrastructure;
+using BoardgamesStatisticsCounter.Infrastructure.Results;
 using Dapper;
 using MediatR;
 using Microsoft.Extensions.Options;
 using Npgsql;
+using Serilog;
 using Sprache;
 
 namespace BoardgamesStatisticsCounter.GameUpdatesImport
 {
-    public class TextMessageHandler : IRequestHandler<TextMessage, OperationResult>
+    public class TextMessageHandler : IRequestHandler<TextMessage, OperationResult<int>>
     {
         private readonly AppSettings _clientConfig;
 
-        public TextMessageHandler(IOptions<AppSettings> clientConfig)
+        private readonly ILogger _logger;
+
+        public TextMessageHandler(IOptions<AppSettings> clientConfig, ILogger logger)
         {
             _clientConfig = clientConfig.Value;
+            _logger = logger;
         }
         
-        public async Task<OperationResult> Handle(TextMessage request, CancellationToken cancellationToken)
+        public async Task<OperationResult<int>> Handle(TextMessage request, CancellationToken cancellationToken)
         {
             var parsedMessage = TextMessageGrammar.MessageParser.TryParse(request.Message);
             if (!parsedMessage.WasSuccessful)
             {
-                return new OperationResult();
+                _logger.Warning($"TextMessageHandler.Handle Failed to parse message {request.Message}");
+                return new InvalidMessageFormatErrorResult();
             }
 
             var gameName = parsedMessage.Value.SelectMany(s => s).First();
@@ -47,8 +51,8 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
             var gameId = await connection.QueryFirstAsync<int>(insertGameAndGetIdSql, new { Name = gameName });
 
             var insertUserGameSql = @"INSERT INTO user_games (game_id, user_id, game_datetime, players, score, winner)
-                        VALUES(@GameId, @UserId, @GameDateTime, @Players, @Score, @Winner)";
-            await connection.ExecuteAsync(
+                        VALUES(@GameId, @UserId, @GameDateTime, @Players, @Score, @Winner) RETURNING id";
+            var userGameId = await connection.QueryFirstAsync<int>(
                 insertUserGameSql,
                 new 
                 {
@@ -60,7 +64,7 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
                     Winner = string.Empty,
                 });
 
-            return new OperationResult();
+            return userGameId;
         }
     }
 }
