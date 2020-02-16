@@ -1,2 +1,2 @@
 # boardgames-statistics-counter
-Telegram bot to that allows add information about played games.
+Telegram bot that helps with tracking board games statistics.
