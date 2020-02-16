@@ -32,7 +32,11 @@ namespace BoardgamesStatisticsCounter
             app.UseMiddleware<ExceptionMiddleware>();
             app.UseCors();
             app.UseRouting();
-            app.UseEndpoints(endpoints => endpoints.MapControllers());
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapHealthChecks("/health");
+                endpoints.MapControllers();
+            });
         }
 
         /// <summary>
@@ -45,6 +49,7 @@ namespace BoardgamesStatisticsCounter
             services.AddSerilogLogging();
             services.Configure<AppSettings>(_configuration.GetSection("AS"));
 
+            services.AddAppHealthChecks();
             services.AddControllers();
             services.AddCors();
             services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly);
