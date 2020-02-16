@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Xml.Xsl;
 using BoardgamesStatisticsCounter.GameUpdatesImport;
 using BoardgamesStatisticsCounter.Infrastructure;
 using BoardgamesStatisticsCounter.Infrastructure.Extensions;
-using FluentMigrator.Runner;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -16,7 +11,7 @@ using Serilog;
 namespace BoardgamesStatisticsCounter
 {
     /// <summary>
-    /// Startup allows to register app dependencies and configure middleware.
+    /// Startup allows registering app dependencies and configure middleware.
     /// </summary>
     public sealed class Startup
     {
@@ -34,7 +29,7 @@ namespace BoardgamesStatisticsCounter
         public static void Configure(IApplicationBuilder app)
         {
             app.UseSerilogRequestLogging();
-            app.UseCustomExceptionMiddleware();
+            app.UseMiddleware<ExceptionMiddleware>();
             app.UseCors();
             app.UseRouting();
             app.UseEndpoints(endpoints => endpoints.MapControllers());

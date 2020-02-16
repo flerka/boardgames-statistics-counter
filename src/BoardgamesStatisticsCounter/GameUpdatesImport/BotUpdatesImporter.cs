@@ -50,8 +50,6 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
                 var offset = 0;
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-
                     var updates = await _telegramBotClient.GetUpdatesAsync(
                         offset,
                         100,
@@ -59,7 +57,7 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
                         null,
                         cancellationToken);
 
-                    (int unsuccessfulProcessed, int successfulProcessed) = await ProcessUpdate(updates);
+                    var (unsuccessfulProcessed, successfulProcessed) = await ProcessUpdate(updates, cancellationToken);
 
                     _logger.Information($"BotUpdatesImporter.ExecuteAsync {successfulProcessed} messages processed successfully, failed to process {unsuccessfulProcessed} messages");
                     if (successfulProcessed == 0 || unsuccessfulProcessed > 0)
@@ -70,6 +68,8 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
 
                     offset += updates.Length;
                 }
+                
+                cancellationToken.ThrowIfCancellationRequested();
             }
             catch (Exception e)
             {
@@ -78,13 +78,15 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
             }
         }
 
-        private async Task<(int, int)> ProcessUpdate(Update[] updates)
+        private async Task<(int, int)> ProcessUpdate(Update[] updates, CancellationToken cancellationToken)
         {
             var total = updates.Length;
             var successfulProcessed = 0;
 
             foreach (var update in updates)
             {
+                cancellationToken.ThrowIfCancellationRequested();
+                
                 if (!_allowedChatIds.Contains(update.Message.Chat.Id.ToString(CultureInfo.InvariantCulture)))
                 {
                     _logger.Warning($"BotUpdatesImporter.ProcessUpdate message from unrecognized user - {update.Message.Chat.Id}");
