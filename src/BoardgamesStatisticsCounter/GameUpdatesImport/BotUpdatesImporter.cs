@@ -58,8 +58,7 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
                         cancellationToken);
 
                     var (unsuccessfulProcessed, successfulProcessed) = await ProcessUpdate(updates, cancellationToken);
-
-                    _logger.Information($"BotUpdatesImporter.ExecuteAsync {successfulProcessed} messages processed successfully, failed to process {unsuccessfulProcessed} messages");
+                    _logger.Information($"{nameof(BotUpdatesImporter)}.{nameof(ExecuteAsync)} {successfulProcessed} messages processed successfully, failed to process {unsuccessfulProcessed} messages");
                     if (successfulProcessed == 0 || unsuccessfulProcessed > 0)
                     {
                         await Task.Delay(_defaultDelayBetweenRequests.Milliseconds, cancellationToken);
@@ -73,7 +72,7 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
             }
             catch (Exception e)
             {
-                _logger.Error(e, "BotUpdatesImporter.ExecuteAsync Some unhandled error occurred, stopping application.");
+                _logger.Error(e, "{nameof(BotUpdatesImporter)}.{nameof(ExecuteAsync)} Some unhandled error occurred, stopping application.");
                 _hostApplicationLifetime.StopApplication();
             }
         }
@@ -89,13 +88,13 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
                 
                 if (!_allowedChatIds.Contains(update.Message.Chat.Id.ToString(CultureInfo.InvariantCulture)))
                 {
-                    _logger.Warning($"BotUpdatesImporter.ProcessUpdate message from unrecognized user - {update.Message.Chat.Id}");
+                    _logger.Warning($"{nameof(BotUpdatesImporter)}.{nameof(ProcessUpdate)} message from unrecognized user - {update.Message.Chat.Id}");
                     continue;
                 }
 
                 if (update.Message.Type != MessageType.Text)
                 {
-                    _logger.Warning($"BotUpdatesImporter.ProcessUpdate unrecognized message type - {update.Message.Chat.Id}");
+                    _logger.Warning($"{nameof(BotUpdatesImporter)}.{nameof(ProcessUpdate)} unrecognized message type - {update.Message.Chat.Id}");
                     continue;
                 }
 
