@@ -44,7 +44,15 @@ namespace BoardgamesStatisticsCounter.Infrastructure.Extensions
                         .ScanIn(typeof(Startup).Assembly).For.Migrations())
                 .AddLogging(lb => lb.AddFluentMigratorConsole());
         }
-
+        
+        internal static IServiceCollection AddAppHealthChecks(this IServiceCollection services)
+        {
+            var serviceProvider = services.BuildServiceProvider(false);
+            using var scope = serviceProvider.CreateScope();
+            var clientConfig = serviceProvider.GetRequiredService<IOptions<AppSettings>>();
+            return services.AddHealthChecks().AddNpgSql(clientConfig.Value.ConnectionString);
+        }
+        
         internal static IServiceCollection ApplyMigrations(this IServiceCollection services)
         {
             var serviceProvider = services.BuildServiceProvider(false);
