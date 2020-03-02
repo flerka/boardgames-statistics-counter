@@ -9,6 +9,8 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
         public string Message { get; set; } = default!;
         
         public string ChatId { get; set; } = default!;
+
+        public int TgMessageId { get; set; } = default;
         
         public DateTime MessageDateTime { get; set; }
     }

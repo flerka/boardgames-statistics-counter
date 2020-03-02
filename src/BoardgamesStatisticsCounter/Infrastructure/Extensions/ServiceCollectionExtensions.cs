@@ -50,7 +50,9 @@ namespace BoardgamesStatisticsCounter.Infrastructure.Extensions
             var serviceProvider = services.BuildServiceProvider(false);
             using var scope = serviceProvider.CreateScope();
             var clientConfig = serviceProvider.GetRequiredService<IOptions<AppSettings>>();
-            return services.AddHealthChecks().AddNpgSql(clientConfig.Value.ConnectionString);
+            services.AddHealthChecks().AddNpgSql(clientConfig.Value.ConnectionString);
+
+            return services;
         }
         
         internal static IServiceCollection ApplyMigrations(this IServiceCollection services)

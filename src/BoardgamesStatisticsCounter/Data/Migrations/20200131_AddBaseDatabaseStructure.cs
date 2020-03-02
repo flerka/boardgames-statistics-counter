@@ -19,6 +19,7 @@ namespace BoardgamesStatisticsCounter.Data.Migrations
 
             Create.Table("user_games")
                 .WithColumn("id").AsInt64().PrimaryKey().Identity()
+                .WithColumn("tg_message_id").AsInt64().Unique()
                 .WithColumn("game_id").AsInt64()
                 .WithColumn("user_id").AsInt64()
                 .WithColumn("game_datetime").AsDateTime()

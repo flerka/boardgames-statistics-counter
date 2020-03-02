@@ -34,24 +34,27 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
             }
 
             var gameName = parsedMessage.Value.SelectMany(s => s).First();
-            using var connection = new NpgsqlConnection(_clientConfig.ConnectionString);
+            await using var connection = new NpgsqlConnection(_clientConfig.ConnectionString);
 
-            var insertUserAndGetIdSql = @"INSERT INTO user_chats (chat_id)
+            const string insertUserAndGetIdSql = @"INSERT INTO user_chats (chat_id)
                         VALUES(@ChatId)
                         ON CONFLICT (chat_id) DO UPDATE 
                         SET chat_id=EXCLUDED.chat_id
                         RETURNING id";
             var userId = await connection.QueryFirstAsync<int>(insertUserAndGetIdSql, new { request.ChatId });
 
-            var insertGameAndGetIdSql = @"INSERT INTO games (name)
+            const string insertGameAndGetIdSql = @"INSERT INTO games (name)
                         VALUES(@Name)
                         ON CONFLICT (name) DO UPDATE 
                         SET name=EXCLUDED.name
                         RETURNING id";
             var gameId = await connection.QueryFirstAsync<int>(insertGameAndGetIdSql, new { Name = gameName });
 
-            var insertUserGameSql = @"INSERT INTO user_games (game_id, user_id, game_datetime, players, score, winner)
-                        VALUES(@GameId, @UserId, @GameDateTime, @Players, @Score, @Winner) RETURNING id";
+            const string insertUserGameSql = @"INSERT INTO user_games (game_id, user_id, game_datetime, players, score, winner, tg_message_id)
+                        VALUES(@GameId, @UserId, @GameDateTime, @Players, @Score, @Winner, @TgMessageId)
+                        ON CONFLICT (tg_message_id) DO UPDATE 
+                        SET name=EXCLUDED.tg_message_id
+                        RETURNING id";
             var userGameId = await connection.QueryFirstAsync<int>(
                 insertUserGameSql,
                 new 
@@ -62,6 +65,7 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
                     Players = string.Empty,
                     Score = string.Empty,
                     Winner = string.Empty,
+                    TgMessageId = request.TgMessageId,
                 });
 
             return userGameId;

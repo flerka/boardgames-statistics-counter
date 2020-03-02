@@ -1,4 +1,5 @@
 using System;
+using Microsoft.VisualBasic;
 
 namespace BoardgamesStatisticsCounter.Data
 {
@@ -17,5 +18,7 @@ namespace BoardgamesStatisticsCounter.Data
         public string? Score { get; set; }
         
         public string? Winner { get; set; }
+        
+        public int TgMessageId { get; set; }
     }
 }
