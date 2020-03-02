@@ -98,12 +98,14 @@ namespace BoardgamesStatisticsCounter.GameUpdatesImport
                     continue;
                 }
 
-                var result = await _mediator.Send(new TextMessage
+                var result = await _mediator.Send(
+                    new TextMessage
                 {
                     Message = update.Message.Text,
+                    TgMessageId = update.Message.MessageId,
                     ChatId = update.Message.Chat.Id.ToString(CultureInfo.InvariantCulture),
                     MessageDateTime = update.Message.Date,
-                });
+                }, cancellationToken);
 
                 if (result.IsSuccesfull)
                 {
