@@ -4,7 +4,6 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <CrossGenDuringPublish>false</CrossGenDuringPublish>
     <PublishTrimmed>true</PublishTrimmed>
-    <PublishReadyToRun>true</PublishReadyToRun>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsNotAsErrors>NU1701, SA1615, SA1633, SA1600, CA1801, CA2000, CS1573, CA1031</WarningsNotAsErrors>
     <LangVersion>8</LangVersion>
